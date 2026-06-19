@@ -1,0 +1,138 @@
+import type { Decoration } from '@/types';
+
+export const DECORATIONS: Decoration[] = [
+  {
+    id: 'cute-plant',
+    name: '小盆栽',
+    description: '绿油油的小植物，让餐厅更有生机',
+    emoji: '🪴',
+    price: 50,
+    reputationBonus: 5,
+    category: 'plant',
+  },
+  {
+    id: 'flower-vase',
+    name: '花瓶',
+    description: '插满鲜花的漂亮花瓶，温馨又浪漫',
+    emoji: '💐',
+    price: 80,
+    reputationBonus: 8,
+    category: 'plant',
+  },
+  {
+    id: 'cat-tree',
+    name: '猫爬架',
+    description: '猫咪们最爱的猫爬架，能让它们玩得开心',
+    emoji: '🏠',
+    price: 200,
+    reputationBonus: 20,
+    category: 'toy',
+  },
+  {
+    id: 'yarn-ball',
+    name: '毛线球',
+    description: '彩色毛线球，猫咪看到就想玩',
+    emoji: '🧶',
+    price: 60,
+    reputationBonus: 6,
+    category: 'toy',
+  },
+  {
+    id: 'fish-tank',
+    name: '小鱼缸',
+    description: '漂亮的小鱼缸，猫咪能看一整天',
+    emoji: '🐠',
+    price: 150,
+    reputationBonus: 15,
+    category: 'furniture',
+  },
+  {
+    id: 'soft-cushion',
+    name: '软垫',
+    description: '软绵绵的垫子，坐着超舒服',
+    emoji: '🛋️',
+    price: 100,
+    reputationBonus: 10,
+    category: 'furniture',
+  },
+  {
+    id: 'picture-frame',
+    name: '挂画',
+    description: '可爱的猫咪挂画，艺术感满满',
+    emoji: '🖼️',
+    price: 120,
+    reputationBonus: 12,
+    category: 'wall',
+  },
+  {
+    id: 'wall-clock',
+    name: '挂钟',
+    description: '可爱的爪印挂钟，时间都变萌了',
+    emoji: '🕐',
+    price: 90,
+    reputationBonus: 9,
+    category: 'wall',
+  },
+  {
+    id: 'cactus',
+    name: '仙人掌',
+    description: '圆滚滚的小仙人掌，好养又可爱',
+    emoji: '🌵',
+    price: 70,
+    reputationBonus: 7,
+    category: 'plant',
+  },
+  {
+    id: 'cat-bed',
+    name: '猫窝',
+    description: '温暖舒适的猫窝，猫咪的专属小床',
+    emoji: '😴',
+    price: 180,
+    reputationBonus: 18,
+    category: 'furniture',
+  },
+  {
+    id: 'feather-toy',
+    name: '逗猫棒',
+    description: '羽毛逗猫棒，一玩就停不下来',
+    emoji: '🪶',
+    price: 40,
+    reputationBonus: 4,
+    category: 'toy',
+  },
+  {
+    id: 'star-light',
+    name: '星星灯',
+    description: '闪闪发光的星星灯，营造梦幻氛围',
+    emoji: '⭐',
+    price: 250,
+    reputationBonus: 25,
+    category: 'wall',
+  },
+  {
+    id: 'rainbow-painting',
+    name: '彩虹画',
+    description: '绚丽的彩虹挂画，心情都会变好',
+    emoji: '🌈',
+    price: 300,
+    reputationBonus: 30,
+    category: 'wall',
+  },
+  {
+    id: 'cat-tower',
+    name: '豪华猫塔',
+    description: '超豪华的多层猫塔，猫咪的城堡',
+    emoji: '🏰',
+    price: 500,
+    reputationBonus: 50,
+    category: 'toy',
+  },
+];
+
+export const getDecorationById = (id: string): Decoration | undefined => {
+  return DECORATIONS.find(deco => deco.id === id);
+};
+
+export const getDecorationsByCategory = (category: Decoration['category']): Decoration[] => {
+  return DECORATIONS.filter(deco => deco.category === category);
+};
