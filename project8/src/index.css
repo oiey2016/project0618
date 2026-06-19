@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=ZCOOL+KuaiLe&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'ZCOOL KuaiLe', 'Share Tech Mono', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+  color: #e8e8f0;
+  background-color: #0a0e1a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(255, 45, 149, 0.08), transparent 45%),
+    radial-gradient(ellipse at 85% 90%, rgba(0, 240, 255, 0.08), transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(26, 16, 51, 0.6), #0a0e1a 75%);
+}
+
+.bg-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 240, 255, 0.03) 2px,
+    rgba(0, 240, 255, 0.03) 4px
+  );
+}
+
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  opacity: 0.06;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, rgba(255, 45, 149, 0.3), rgba(0, 240, 255, 0.3));
+  border-radius: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, rgba(255, 45, 149, 0.5), rgba(0, 240, 255, 0.5));
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 45, 149, 0.3) transparent;
+}
+
+button {
+  font-family: inherit;
+}
+
+.neon-text-glow-pink {
+  text-shadow: 0 0 8px rgba(255, 45, 149, 0.6), 0 0 16px rgba(255, 45, 149, 0.3);
+}
+.neon-text-glow-cyan {
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.6), 0 0 16px rgba(0, 240, 255, 0.3);
+}
+
+.skyline-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgba(10, 14, 26, 1) 0%, transparent 35%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 300' preserveAspectRatio='none'%3E%3Cg fill='%231a1033' opacity='0.7'%3E%3Crect x='20' y='150' width='40' height='150'/%3E%3Crect x='70' y='100' width='60' height='200'/%3E%3Crect x='140' y='180' width='30' height='120'/%3E%3Crect x='180' y='120' width='80' height='180'/%3E%3Crect x='270' y='160' width='50' height='140'/%3E%3Crect x='330' y='80' width='70' height='220'/%3E%3Crect x='410' y='140' width='45' height='160'/%3E%3Crect x='465' y='190' width='35' height='110'/%3E%3Crect x='510' y='110' width='90' height='190'/%3E%3Crect x='610' y='170' width='40' height='130'/%3E%3Crect x='660' y='130' width='60' height='170'/%3E%3Crect x='730' y='160' width='50' height='140'/%3E%3C/g%3E%3Cg fill='%23ff2d95' opacity='0.15'%3E%3Crect x='85' y='130' width='6' height='6'/%3E%3Crect x='100' y='150' width='6' height='6'/%3E%3Crect x='200' y='150' width='6' height='6'/%3E%3Crect x='225' y='180' width='6' height='6'/%3E%3Crect x='350' y='120' width='6' height='6'/%3E%3Crect x='370' y='170' width='6' height='6'/%3E%3Crect x='530' y='140' width='6' height='6'/%3E%3Crect x='560' y='190' width='6' height='6'/%3E%3Crect x='680' y='160' width='6' height='6'/%3E%3C/g%3E%3Cg fill='%2300f0ff' opacity='0.15'%3E%3Crect x='75' y='170' width='5' height='5'/%3E%3Crect x='240' y='140' width='5' height='5'/%3E%3Crect x='345' y='200' width='5' height='5'/%3E%3Crect x='425' y='170' width='5' height='5'/%3E%3Crect x='580' y='160' width='5' height='5'/%3E%3Crect x='675' y='190' width='5' height='5'/%3E%3Crect x='745' y='180' width='5' height='5'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  opacity: 0.8;
+}
