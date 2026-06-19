@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  line-height: 1.6;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #02030a;
+  color: #e8ecff;
+  overflow: hidden;
+}
+
+@layer components {
+  .ornate-border {
+    position: relative;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    background:
+      linear-gradient(145deg, rgba(30, 37, 80, 0.85), rgba(10, 14, 39, 0.95));
+    backdrop-filter: blur(6px);
+  }
+
+  .ornate-border::before,
+  .ornate-border::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: #d4af37;
+    border-style: solid;
+    pointer-events: none;
+  }
+
+  .ornate-border::before {
+    top: -1px;
+    left: -1px;
+    border-width: 2px 0 0 2px;
+  }
+
+  .ornate-border::after {
+    bottom: -1px;
+    right: -1px;
+    border-width: 0 2px 2px 0;
+  }
+
+  .gold-btn {
+    @apply relative px-6 py-3 font-display font-semibold tracking-wider text-stardust-100;
+    @apply bg-gradient-to-b from-space-400 to-space-500;
+    @apply border border-stardust-400/60 rounded-sm;
+    @apply transition-all duration-300 ease-out;
+    @apply hover:border-stardust-300 hover:text-stardust-50 hover:shadow-gold;
+    @apply active:scale-[0.98];
+    @apply disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:text-stardust-100;
+  }
+
+  .gold-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(212, 175, 55, 0.14) 0%,
+      transparent 60%
+    );
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .gold-btn:hover::after {
+    opacity: 1;
+  }
+
+  .glass-panel {
+    @apply bg-space-400/60 border border-space-300/40 backdrop-blur;
+  }
+
+  .scrollbar-gold {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.55) transparent;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.55);
+    border-radius: 3px;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.8);
+  }
+
+  .parchment-bg {
+    background-color: #fbf5e6;
+    background-image:
+      radial-gradient(
+        ellipse at 20% 10%,
+        rgba(212, 175, 55, 0.08) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse at 80% 90%,
+        rgba(139, 110, 18, 0.12) 0%,
+        transparent 60%
+      );
+    position: relative;
+  }
+
+  .parchment-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .text-gold-gradient {
+    background: linear-gradient(180deg, #ffe26b 0%, #d4af37 45%, #8a6e12 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+
+@keyframes starDrift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-60px, -40px, 0);
+  }
+}
+
+.star-field-layer {
+  animation: starDrift 120s linear infinite;
+}
