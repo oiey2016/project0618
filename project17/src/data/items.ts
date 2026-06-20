@@ -1,0 +1,98 @@
+import { Item } from '../types/game';
+
+export const items: Item[] = [
+  {
+    id: 'matches',
+    name: '火柴',
+    description: '一盒老旧的火柴，还剩下几根。',
+    icon: 'flame',
+    canUseOn: ['candle', 'fireplace'],
+    usedToSolve: ['light-candle'],
+    collected: false,
+  },
+  {
+    id: 'rusty-key',
+    name: '生锈的钥匙',
+    description: '一把铜制的老旧钥匙，上面刻着"书房"两个字。',
+    icon: 'key',
+    canUseOn: ['study-door', 'old-chest'],
+    usedToSolve: ['unlock-study', 'open-chest'],
+    collected: false,
+  },
+  {
+    id: 'flashlight',
+    name: '手电筒',
+    description: '一个破旧的手电筒，按下开关还能发出微弱的光。',
+    icon: 'lightbulb',
+    canUseOn: ['dark-corner', 'basement-entrance'],
+    usedToSolve: ['find-note', 'enter-basement'],
+    collected: false,
+  },
+  {
+    id: 'crowbar',
+    name: '撬棍',
+    description: '一根生锈的撬棍，看起来很结实。',
+    icon: 'axe',
+    canUseOn: ['stuck-drawer', 'floorboard'],
+    usedToSolve: ['open-drawer', 'pry-floorboard'],
+    collected: false,
+  },
+  {
+    id: 'old-photo',
+    name: '老照片',
+    description: '一张泛黄的全家福照片，背面写着："结婚纪念日 1987/03/15"。',
+    icon: 'image',
+    canUseOn: [],
+    usedToSolve: [],
+    collected: false,
+  },
+  {
+    id: 'diary-page-1',
+    name: '日记残页（一）',
+    description: '"...我把最重要的东西放在了只有我们知道的地方。那个数字，是我们的开始..."',
+    icon: 'file-text',
+    canUseOn: [],
+    usedToSolve: [],
+    collected: false,
+  },
+  {
+    id: 'diary-page-2',
+    name: '日记残页（二）',
+    description: '"医生说她的病越来越重了。我必须想办法，哪怕是违背常理..."',
+    icon: 'file-text',
+    canUseOn: [],
+    usedToSolve: [],
+    collected: false,
+  },
+  {
+    id: 'diary-page-3',
+    name: '日记残页（三）',
+    description: '"地下室的密码，是她来到这个世界的日子。我永远不会忘记..."',
+    icon: 'file-text',
+    canUseOn: [],
+    usedToSolve: [],
+    collected: false,
+  },
+  {
+    id: 'newspaper',
+    name: '旧报纸',
+    description: '一张1987年的报纸，头条写着："老宅火灾，女主人不幸身亡"。',
+    icon: 'newspaper',
+    canUseOn: [],
+    usedToSolve: [],
+    collected: false,
+  },
+  {
+    id: 'final-key',
+    name: '大门钥匙',
+    description: '一把古老的钥匙，上面镶嵌着一颗红色的宝石。这一定是大门的钥匙！',
+    icon: 'key',
+    canUseOn: ['main-door'],
+    usedToSolve: ['escape'],
+    collected: false,
+  },
+];
+
+export const getItemById = (id: string): Item | undefined => {
+  return items.find(item => item.id === id);
+};
