@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF5EE 0%, #E8F4FA 50%, #E9F7EE 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+@layer components {
+  .btn-cute {
+    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-cute text-lg
+           bg-gradient-to-b from-peach-200 to-peach-300 text-cocoa-soft
+           shadow-soft hover:shadow-pop hover:-translate-y-1 hover:from-peach-100 hover:to-peach-200
+           active:translate-y-0 active:shadow-soft
+           transition-all duration-300 ease-out
+           border-2 border-peach-300/50;
+  }
+  
+  .btn-cute-primary {
+    @apply relative inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-cute text-xl
+           bg-gradient-to-b from-mint-soft to-mint-light text-cocoa-soft
+           shadow-pop hover:-translate-y-1.5 hover:shadow-[0_20px_50px_rgba(184,224,196,0.6)]
+           active:translate-y-0
+           transition-all duration-300 ease-out
+           border-2 border-mint-soft/70;
+  }
+  
+  .btn-cute-ghost {
+    @apply relative inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-cute text-base
+           bg-white/70 backdrop-blur-sm text-cocoa-soft
+           border-2 border-peach-200/60 shadow-cute
+           hover:bg-white hover:border-peach-300 hover:-translate-y-0.5
+           active:translate-y-0
+           transition-all duration-300;
+  }
+  
+  .btn-round {
+    @apply relative inline-flex items-center justify-center w-12 h-12 rounded-full
+           bg-white/80 backdrop-blur-sm text-cocoa-soft
+           border-2 border-peach-200/50 shadow-cute
+           hover:bg-peach-50 hover:scale-110 hover:border-peach-300
+           active:scale-95
+           transition-all duration-300;
+  }
+
+  .card-glass {
+    @apply rounded-cute bg-white/70 backdrop-blur-md
+           border-2 border-white/80 shadow-soft;
+  }
+  
+  .card-float {
+    @apply rounded-cute bg-gradient-to-br from-white to-cream-100
+           border-2 border-peach-100 shadow-pop;
+  }
+  
+  .title-cute {
+    @apply font-cute text-transparent bg-clip-text
+           bg-gradient-to-r from-peach-500 via-sunny-gold to-mint-soft;
+    text-shadow: 0 4px 12px rgba(255, 154, 120, 0.2);
+  }
+  
+  .text-stroke-soft {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);
+  }
+}
+
+@layer utilities {
+  .bg-grid-paper {
+    background-image:
+      linear-gradient(rgba(168, 216, 234, 0.2) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168, 216, 234, 0.2) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  
+  .bg-clouds {
+    background-image:
+      radial-gradient(ellipse 120px 50px at 10% 20%, rgba(255,255,255,0.8), transparent 70%),
+      radial-gradient(ellipse 160px 60px at 80% 15%, rgba(255,255,255,0.7), transparent 70%),
+      radial-gradient(ellipse 100px 40px at 50% 70%, rgba(255,255,255,0.6), transparent 70%),
+      radial-gradient(ellipse 140px 55px at 25% 85%, rgba(255,255,255,0.5), transparent 70%);
+  }
+  
+  .text-shadow-pop {
+    text-shadow:
+      0 2px 0 rgba(255, 180, 160, 0.5),
+      0 4px 16px rgba(255, 154, 120, 0.3);
+  }
+}
+
+.cloud {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.85;
+  filter: blur(1px);
+}
+
+.cloud::before,
+.cloud::after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+}
