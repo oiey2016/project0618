@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --pixel-border: 3px solid #2D3436;
+  --pixel-radius: 4px;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: "ZCOOL KuaiLe", cursive;
+  background-color: #FFF5E6;
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255, 230, 109, 0.1) 0%, transparent 40%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.pixel-border {
+  border: var(--pixel-border);
+  border-radius: var(--pixel-radius);
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.2);
+}
+
+.pixel-btn {
+  border: var(--pixel-border);
+  border-radius: var(--pixel-radius);
+  box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.2);
+  transition: all 0.15s ease;
+  font-family: "ZCOOL KuaiLe", cursive;
+}
+
+.pixel-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.2);
+}
+
+.pixel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px rgba(0,0,0,0.2);
+}
+
+.pixel-block {
+  border: 2px solid rgba(0,0,0,0.3);
+  box-shadow: 
+    inset 2px 2px 0px rgba(255,255,255,0.3),
+    inset -2px -2px 0px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+  cursor: grab;
+}
+
+.pixel-block:hover {
+  transform: scale(1.1) rotate(2deg);
+  z-index: 10;
+}
+
+.pixel-block.dragging {
+  cursor: grabbing;
+  transform: scale(1.15) rotate(5deg);
+  opacity: 0.9;
+  z-index: 100;
+}
+
+.grid-cell {
+  border: 1px dashed rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+}
+
+.grid-cell.drag-over {
+  background-color: rgba(78, 205, 196, 0.3);
+  border-color: #4ECDC4;
+  transform: scale(1.05);
+}
+
+.grid-cell.filled {
+  border: none;
+}
+
+.grid-cell.filled .pixel-block {
+  cursor: default;
+  animation: pop 0.3s ease-out;
+}
+
+.grid-cell.filled .pixel-block:hover {
+  transform: none;
+}
+
+@keyframes place-success {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.place-success {
+  animation: place-success 0.3s ease-out;
+}
+
+@keyframes wrong-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.wrong-shake {
+  animation: wrong-shake 0.4s ease-in-out;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(300px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: absolute;
+  animation: confetti-fall 2s ease-out forwards;
+}
+
+@keyframes pixel-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.4); }
+}
+
+.pixel-glow {
+  animation: pixel-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes stripe {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.rainbow-stripe {
+  background: linear-gradient(90deg, 
+    #FF6B9D, #FFE66D, #7BED9F, #4ECDC4, #74B9FF, #AA96DA, #FF6B9D);
+  background-size: 200% 100%;
+  animation: stripe 3s linear infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.fade-enter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
