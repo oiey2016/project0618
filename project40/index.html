@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>积木平衡 - 抽走不塌算赢</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #87CEEB 0%, #FFE4EC 100%);
+            font-family: 'Baloo 2', cursive;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .game-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 600px;
+            padding: 0 10px;
+        }
+
+        .title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FF6B6B, #FFA94D, #FFE066, #69DB7C, #4DABF7, #B197FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .score-label {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .score-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #FF6B6B;
+        }
+
+        #gameCanvas {
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            cursor: grab;
+        }
+
+        #gameCanvas:active {
+            cursor: grabbing;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #4DABF7, #74C0FC);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(77, 171, 247, 0.4);
+        }
+
+        .game-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 2rem;
+            font-weight: 800;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 100;
+        }
+
+        .game-status.show {
+            opacity: 1;
+        }
+
+        .game-status.success {
+            background: linear-gradient(135deg, #69DB7C, #FFE066);
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .game-status.fail {
+            background: linear-gradient(135deg, #FF6B6B, #FF8787);
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .game-status.victory {
+            background: linear-gradient(135deg, #B197FC, #FFA94D, #FFE066, #69DB7C, #4DABF7, #B197FC);
+            background-size: 300% 300%;
+            animation: rainbow 2s ease infinite;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        @keyframes rainbow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            color: #888;
+            opacity: 0.8;
+        }
+
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: particleFall 1s ease-out forwards;
+        }
+
+        @keyframes particleFall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100px) scale(0);
+            }
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 600px;
+            margin-top: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            color: #666;
+            background: rgba(255,255,255,0.7);
+            padding: 4px 10px;
+            border-radius: 15px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .help-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #B197FC, #74C0FC);
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            z-index: 50;
+        }
+
+        .help-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(177, 151, 252, 0.4);
+        }
+
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .help-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .help-content {
+            background: white;
+            border-radius: 24px;
+            padding: 30px 35px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .help-modal.show .help-content {
+            transform: translateY(0);
+        }
+
+        .help-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FF6B6B, #FFA94D, #FFE066, #69DB7C, #4DABF7, #B197FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .help-rule {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #F8F9FA;
+            border-radius: 12px;
+        }
+
+        .help-rule-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .help-rule-text {
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .help-rule-text strong {
+            color: #333;
+        }
+
+        .help-close {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #69DB7C, #4DABF7);
+            color: white;
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .help-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(105, 219, 124, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">积木平衡</h1>
+            <div class="score-display">
+                <span class="score-label">已抽取</span>
+                <span class="score-value" id="score">0</span>
+                <span class="score-label">块</span>
+            </div>
+        </div>
+
+        <div style="position: relative;">
+            <canvas id="gameCanvas" width="600" height="500"></canvas>
+            <button class="help-btn" id="helpBtn">?</button>
+            <div class="game-status" id="gameStatus"></div>
+            <div class="particles-container" id="particles"></div>
+        </div>
+
+        <div class="help-modal" id="helpModal">
+            <div class="help-content">
+                <h2 class="help-title">游戏玩法</h2>
+                <div class="help-rule">
+                    <div class="help-rule-icon" style="background: #FF6B6B;">🎯</div>
+                    <div class="help-rule-text"><strong>目标</strong>：将底部积木安全移出塔身，保持塔不倒塌</div>
+                </div>
+                <div class="help-rule">
+                    <div class="help-rule-icon" style="background: #4DABF7;">👆</div>
+                    <div class="help-rule-text"><strong>操作</strong>：鼠标拖拽底部可抽取的积木，将其移出塔外</div>
+                </div>
+                <div class="help-rule">
+                    <div class="help-rule-icon" style="background: #69DB7C;">✓</div>
+                    <div class="help-rule-text"><strong>成功</strong>：积木完全移出且塔身保持平衡不倒塌</div>
+                </div>
+                <div class="help-rule">
+                    <div class="help-rule-icon" style="background: #FF8787;">✗</div>
+                    <div class="help-rule-text"><strong>失败</strong>：塔身倾斜过度或积木掉落即为失败</div>
+                </div>
+                <div class="help-rule">
+                    <div class="help-rule-icon" style="background: #FFE066;">🏆</div>
+                    <div class="help-rule-text"><strong>胜利</strong>：成功移出所有积木即达成最终胜利</div>
+                </div>
+                <button class="help-close" id="helpClose">知道了，开始游戏</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-reset" id="resetBtn">重新开始</button>
+        </div>
+
+        <div class="legend" id="legend"></div>
+
+        <p class="hint">拖拽底部积木移出塔身，保持平衡不倒塌</p>
+    </div>
+
+    <script>
+        const { Engine, Render, Runner, Bodies, Body, Composite, Mouse, MouseConstraint, Events, Vector } = Matter;
+
+        // 积木颜色和纹理配置
+        const BLOCK_CONFIGS = [
+            { color: '#FF6B6B', texture: 'diagonal', name: '珊瑚红' },
+            { color: '#FFA94D', texture: 'dots', name: '橙色' },
+            { color: '#FFE066', texture: 'grid', name: '柠檬黄' },
+            { color: '#69DB7C', texture: 'horizontal', name: '薄荷绿' },
+            { color: '#38D9A9', texture: 'wave', name: '青绿' },
+            { color: '#4DABF7', texture: 'solid', name: '天蓝色' },
+            { color: '#B197FC', texture: 'circles', name: '淡紫色' }
+        ];
+
+        const BLOCK_WIDTH = 90;
+        const BLOCK_HEIGHT = 35;
+        const LAYER_COUNT = 10;
+        const TOWER_WIDTH = 300;
+        const TILT_THRESHOLD = 45;
+
+        class BlockGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.scoreEl = document.getElementById('score');
+                this.statusEl = document.getElementById('gameStatus');
+                this.particlesEl = document.getElementById('particles');
+                this.legendEl = document.getElementById('legend');
+
+                this.blocks = [];
+                this.extractableBlocks = [];
+                this.score = 0;
+                this.gameState = 'playing';
+                this.draggedBlock = null;
+                this.dragOffset = { x: 0, y: 0 };
+                this.hoveredBlock = null;
+                this.usedColors = [];
+                this.textureCache = {};
+
+                this.init();
+            }
+
+            init() {
+                // 创建物理引擎
+                this.engine = Engine.create();
+                this.engine.gravity.y = 1;
+                this.world = this.engine.world;
+
+                // 创建边界
+                this.createBoundaries();
+
+                // 生成积木塔
+                this.createTower();
+
+                // 设置鼠标交互
+                this.setupMouse();
+
+                // 碰撞检测
+                this.setupCollision();
+
+                // 更新可抽取积木
+                this.updateExtractableBlocks();
+
+                // 更新图例
+                this.updateLegend();
+
+                // 开始游戏循环
+                this.gameLoop();
+
+                // 绑定按钮事件
+                document.getElementById('resetBtn').addEventListener('click', () => this.reset());
+            }
+
+            createBoundaries() {
+                const thickness = 50;
+                const ground = Bodies.rectangle(
+                    this.canvas.width / 2,
+                    this.canvas.height + thickness / 2 - 10,
+                    this.canvas.width,
+                    thickness,
+                    { isStatic: true, label: 'ground' }
+                );
+                const leftWall = Bodies.rectangle(
+                    -thickness / 2,
+                    this.canvas.height / 2,
+                    thickness,
+                    this.canvas.height * 2,
+                    { isStatic: true, label: 'wall' }
+                );
+                const rightWall = Bodies.rectangle(
+                    this.canvas.width + thickness / 2,
+                    this.canvas.height / 2,
+                    thickness,
+                    this.canvas.height * 2,
+                    { isStatic: true, label: 'wall' }
+                );
+                Composite.add(this.world, [ground, leftWall, rightWall]);
+            }
+
+            getRandomColor() {
+                const available = BLOCK_CONFIGS.filter(c => !this.usedColors.includes(c.color));
+                if (available.length === 0) {
+                    this.usedColors = [];
+                    return BLOCK_CONFIGS[Math.floor(Math.random() * BLOCK_CONFIGS.length)];
+                }
+                const config = available[Math.floor(Math.random() * available.length)];
+                this.usedColors.push(config.color);
+                return config;
+            }
+
+            createTower() {
+                const startX = this.canvas.width / 2;
+                const startY = this.canvas.height - 60;
+                const horizontalGap = 5;
+                const verticalGap = 3;
+
+                this.blocks = [];
+                this.usedColors = [];
+
+                for (let layer = 0; layer < LAYER_COUNT; layer++) {
+                    const isHorizontal = layer % 2 === 0;
+                    const layerColor = this.getRandomColor();
+                    const layerY = startY - layer * (BLOCK_HEIGHT + verticalGap);
+
+                    if (isHorizontal) {
+                        // 横向积木 - 3块并排
+                        for (let i = 0; i < 3; i++) {
+                            const x = startX + (i - 1) * (BLOCK_WIDTH + horizontalGap);
+                            this.createBlock(x, layerY, 0, layer, layerColor);
+                        }
+                    } else {
+                        // 纵向积木 - 3块纵向放置
+                        for (let i = 0; i < 3; i++) {
+                            const x = startX + (i - 1) * (BLOCK_WIDTH + horizontalGap);
+                            this.createBlock(x, layerY, Math.PI / 2, layer, layerColor);
+                        }
+                    }
+                }
+            }
+
+            createBlock(x, y, angle, layer, config) {
+                const block = Bodies.rectangle(x, y, BLOCK_WIDTH, BLOCK_HEIGHT, {
+                    friction: 0.9,
+                    frictionStatic: 1.0,
+                    restitution: 0.05,
+                    density: 0.002,
+                    angle: angle,
+                    label: 'block'
+                });
+
+                block.gameData = {
+                    id: Math.random(),
+                    layer: layer,
+                    color: config.color,
+                    texture: config.texture,
+                    name: config.name,
+                    originalAngle: angle
+                };
+
+                this.blocks.push(block);
+                Composite.add(this.world, block);
+            }
+
+            setupMouse() {
+                this.mouse = Mouse.create(this.canvas);
+                this.mouseConstraint = MouseConstraint.create(this.engine, {
+                    mouse: this.mouse,
+                    constraint: {
+                        stiffness: 0.2,
+                        render: { visible: false }
+                    }
+                });
+                Composite.add(this.world, this.mouseConstraint);
+
+                // 保持鼠标在canvas内
+                this.mouse.element.removeEventListener('mousewheel', this.mouse.mousewheel);
+                this.mouse.element.removeEventListener('DOMMouseScroll', this.mouse.mousewheel);
+            }
+
+            setupCollision() {
+                Events.on(this.engine, 'afterUpdate', () => {
+                    if (this.gameState !== 'playing') return;
+
+                    // 检测塔是否倾斜过度
+                    if (this.blocks.length > 0) {
+                        const towerCenter = this.getTowerCenter();
+                        let maxTilt = 0;
+
+                        for (const block of this.blocks) {
+                            const dx = block.position.x - towerCenter.x;
+                            const dy = block.position.y - towerCenter.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+
+                            if (dist < 50 && block.position.y < this.canvas.height - 100) {
+                                const tilt = Math.abs(block.angle - block.gameData.originalAngle) * (180 / Math.PI);
+                                maxTilt = Math.max(maxTilt, tilt);
+                            }
+                        }
+
+                        // 检查积木是否掉落
+                        for (const block of this.blocks) {
+                            if (block.position.y > this.canvas.height + 50) {
+                                this.gameOver(false);
+                                return;
+                            }
+                        }
+                    }
+                });
+            }
+
+            getTowerCenter() {
+                if (this.blocks.length === 0) return { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+
+                let totalX = 0, totalY = 0;
+                for (const block of this.blocks) {
+                    totalX += block.position.x;
+                    totalY += block.position.y;
+                }
+                return {
+                    x: totalX / this.blocks.length,
+                    y: totalY / this.blocks.length
+                };
+            }
+
+            updateExtractableBlocks() {
+                this.extractableBlocks = [];
+
+                // 获取最低层的积木
+                let minLayer = Infinity;
+                for (const block of this.blocks) {
+                    if (block.gameData.layer < minLayer) {
+                        minLayer = block.gameData.layer;
+                    }
+                }
+
+                // 找出最底层的积木
+                for (const block of this.blocks) {
+                    if (block.gameData.layer === minLayer) {
+                        this.extractableBlocks.push(block);
+                    }
+                }
+            }
+
+            isMouseOnBlock(mousePos, block) {
+                const dx = mousePos.x - block.position.x;
+                const dy = mousePos.y - block.position.y;
+
+                // 简单的矩形检测（忽略旋转）
+                const hw = BLOCK_WIDTH / 2 + 10;
+                const hh = BLOCK_HEIGHT / 2 + 10;
+
+                return Math.abs(dx) < hw && Math.abs(dy) < hh;
+            }
+
+            isBlockExtracted(block) {
+                const center = this.getTowerCenter();
+                const dx = block.position.x - center.x;
+                const dy = block.position.y - center.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                // 积木完全移出塔身区域
+                return dist > TOWER_WIDTH / 2 + BLOCK_WIDTH;
+            }
+
+            checkTowerStability() {
+                const center = this.getTowerCenter();
+
+                for (const block of this.blocks) {
+                    // 检查每个积木的倾斜角度
+                    const tilt = Math.abs(block.angle - block.gameData.originalAngle) * (180 / Math.PI);
+
+                    // 检查积木是否离中心太远
+                    const dx = block.position.x - center.x;
+                    const dy = block.position.y - center.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist > TOWER_WIDTH) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            removeBlock(block) {
+                Composite.remove(this.world, block);
+                this.blocks = this.blocks.filter(b => b !== block);
+            }
+
+            handleMouseDown(e) {
+                if (this.gameState !== 'playing') return;
+
+                const rect = this.canvas.getBoundingClientRect();
+                const mousePos = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+
+                for (const block of this.extractableBlocks) {
+                    if (this.isMouseOnBlock(mousePos, block)) {
+                        this.draggedBlock = block;
+                        this.dragOffset = {
+                            x: block.position.x - mousePos.x,
+                            y: block.position.y - mousePos.y
+                        };
+                        Body.setStatic(block, true);
+                        break;
+                    }
+                }
+            }
+
+            handleMouseMove(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const mousePos = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+
+                if (this.draggedBlock) {
+                    Body.setPosition(this.draggedBlock, {
+                        x: mousePos.x + this.dragOffset.x,
+                        y: mousePos.y + this.dragOffset.y
+                    });
+                } else if (this.gameState === 'playing') {
+                    // 高亮悬停的积木
+                    this.hoveredBlock = null;
+                    for (const block of this.extractableBlocks) {
+                        if (this.isMouseOnBlock(mousePos, block)) {
+                            this.hoveredBlock = block;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            handleMouseUp(e) {
+                if (!this.draggedBlock) return;
+
+                const block = this.draggedBlock;
+                Body.setStatic(block, false);
+                this.draggedBlock = null;
+
+                // 检查是否成功抽出
+                if (this.isBlockExtracted(block)) {
+                    this.removeBlock(block);
+                    this.score++;
+                    this.scoreEl.textContent = this.score;
+                    this.createParticles(block.position.x, block.position.y, block.gameData.color);
+
+                    if (this.blocks.length === 0) {
+                        this.gameOver(true);
+                    } else {
+                        this.updateExtractableBlocks();
+
+                        // 检查稳定性
+                        setTimeout(() => {
+                            if (!this.checkTowerStability()) {
+                                this.gameOver(false);
+                            }
+                        }, 500);
+                    }
+                } else {
+                    // 积木弹回 - 应用一个小的力让它回归
+                    Body.setPosition(block, {
+                        x: block.position.x * 0.8 + this.getTowerCenter().x * 0.2,
+                        y: block.position.y
+                    });
+                }
+            }
+
+            gameOver(victory) {
+                this.gameState = victory ? 'victory' : 'fail';
+                this.statusEl.textContent = victory ? '🎉 全部通关！' : '💥 倒塌了！';
+                this.statusEl.className = 'game-status show ' + (victory ? 'victory' : 'fail');
+
+                if (victory) {
+                    this.createVictoryParticles();
+                }
+            }
+
+            createParticles(x, y, color) {
+                for (let i = 0; i < 12; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = (this.canvas.offsetLeft + x) + 'px';
+                    particle.style.top = (this.canvas.offsetTop + y) + 'px';
+                    particle.style.background = color;
+                    particle.style.transform = `translate(${(Math.random() - 0.5) * 100}px, ${(Math.random() - 0.5) * 100}px)`;
+                    this.particlesEl.appendChild(particle);
+
+                    setTimeout(() => particle.remove(), 1000);
+                }
+            }
+
+            createVictoryParticles() {
+                const colors = ['#FF6B6B', '#FFA94D', '#FFE066', '#69DB7C', '#4DABF7', '#B197FC'];
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = (this.canvas.offsetLeft + Math.random() * this.canvas.width) + 'px';
+                        particle.style.top = (this.canvas.offsetTop + Math.random() * 200) + 'px';
+                        particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        this.particlesEl.appendChild(particle);
+
+                        setTimeout(() => particle.remove(), 1000);
+                    }, i * 50);
+                }
+            }
+
+            reset() {
+                // 清除所有积木
+                for (const block of this.blocks) {
+                    Composite.remove(this.world, block);
+                }
+
+                // 重置游戏状态
+                this.score = 0;
+                this.scoreEl.textContent = '0';
+                this.gameState = 'playing';
+                this.statusEl.className = 'game-status';
+                this.hoveredBlock = null;
+                this.draggedBlock = null;
+
+                // 重新创建塔
+                this.createTower();
+                this.updateExtractableBlocks();
+                this.updateLegend();
+            }
+
+            updateLegend() {
+                const usedColors = [...new Set(this.blocks.map(b => b.gameData.color))];
+                this.legendEl.innerHTML = usedColors.map(color => {
+                    const config = BLOCK_CONFIGS.find(c => c.color === color);
+                    return `<div class="legend-item">
+                        <div class="legend-color" style="background: ${color}"></div>
+                        <span>${config ? config.name : color}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            // 纹理绘制方法
+            drawTexture(ctx, x, y, width, height, type, color) {
+                ctx.save();
+                ctx.translate(x, y);
+
+                switch (type) {
+                    case 'diagonal':
+                        ctx.strokeStyle = this.adjustColor(color, -20);
+                        ctx.lineWidth = 2;
+                        for (let i = -width; i < width + height; i += 8) {
+                            ctx.beginPath();
+                            ctx.moveTo(i, 0);
+                            ctx.lineTo(i + height, height);
+                            ctx.stroke();
+                        }
+                        break;
+
+                    case 'dots':
+                        ctx.fillStyle = this.adjustColor(color, -30);
+                        for (let i = -width/2 + 5; i < width/2; i += 10) {
+                            for (let j = -height/2 + 5; j < height/2; j += 10) {
+                                ctx.beginPath();
+                                ctx.arc(i, j, 2, 0, Math.PI * 2);
+                                ctx.fill();
+                            }
+                        }
+                        break;
+
+                    case 'grid':
+                        ctx.strokeStyle = this.adjustColor(color, -25);
+                        ctx.lineWidth = 1;
+                        for (let i = -width/2; i <= width/2; i += 10) {
+                            ctx.beginPath();
+                            ctx.moveTo(i, -height/2);
+                            ctx.lineTo(i, height/2);
+                            ctx.stroke();
+                        }
+                        for (let j = -height/2; j <= height/2; j += 10) {
+                            ctx.beginPath();
+                            ctx.moveTo(-width/2, j);
+                            ctx.lineTo(width/2, j);
+                            ctx.stroke();
+                        }
+                        break;
+
+                    case 'horizontal':
+                        ctx.fillStyle = this.adjustColor(color, -20);
+                        for (let j = -height/2 + 4; j < height/2; j += 8) {
+                            ctx.fillRect(-width/2, j, width, 3);
+                        }
+                        break;
+
+                    case 'wave':
+                        ctx.strokeStyle = this.adjustColor(color, -25);
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        for (let i = -width/2; i < width/2; i += 2) {
+                            const y = Math.sin((i + width/2) * 0.2) * 4;
+                            if (i === -width/2) {
+                                ctx.moveTo(i, y);
+                            } else {
+                                ctx.lineTo(i, y);
+                            }
+                        }
+                        ctx.stroke();
+                        break;
+
+                    case 'solid':
+                        // 纯色无额外纹理
+                        break;
+
+                    case 'circles':
+                        ctx.fillStyle = this.adjustColor(color, -20);
+                        for (let i = -width/2 + 8; i < width/2; i += 16) {
+                            ctx.beginPath();
+                            ctx.arc(i, 0, 4, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        break;
+                }
+
+                ctx.restore();
+            }
+
+            adjustColor(hex, amount) {
+                const num = parseInt(hex.slice(1), 16);
+                const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+                const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+                const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+                return `rgb(${r},${g},${b})`;
+            }
+
+            render() {
+                const ctx = this.ctx;
+
+                // 清空画布
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 绘制背景渐变
+                const gradient = ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+                gradient.addColorStop(0, '#E8F4FC');
+                gradient.addColorStop(1, '#FEF9F3');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 绘制地面
+                ctx.fillStyle = '#DDD';
+                ctx.fillRect(0, this.canvas.height - 15, this.canvas.width, 15);
+
+                // 绘制地面纹理
+                ctx.strokeStyle = '#CCC';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < this.canvas.width; i += 20) {
+                    ctx.beginPath();
+                    ctx.moveTo(i, this.canvas.height - 15);
+                    ctx.lineTo(i + 10, this.canvas.height);
+                    ctx.stroke();
+                }
+
+                // 绘制所有积木
+                for (const block of this.blocks) {
+                    this.drawBlock(block);
+                }
+
+                // 绘制提示
+                if (this.gameState === 'playing' && this.extractableBlocks.length > 0) {
+                    ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+                    ctx.font = '12px Baloo 2';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('拖拽底部积木移出', this.canvas.width / 2, this.canvas.height - 25);
+                }
+            }
+
+            drawBlock(block) {
+                const ctx = this.ctx;
+                const { x, y } = block.position;
+                const angle = block.angle;
+                const isHovered = block === this.hoveredBlock;
+                const isExtractable = this.extractableBlocks.includes(block);
+
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+
+                // 阴影
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+                ctx.shadowBlur = isHovered ? 15 : 8;
+                ctx.shadowOffsetX = isHovered ? 4 : 2;
+                ctx.shadowOffsetY = isHovered ? 4 : 2;
+
+                // 积木主体
+                ctx.fillStyle = block.gameData.color;
+                this.roundRect(ctx, -BLOCK_WIDTH/2, -BLOCK_HEIGHT/2, BLOCK_WIDTH, BLOCK_HEIGHT, 6);
+                ctx.fill();
+
+                // 重置阴影
+                ctx.shadowColor = 'transparent';
+
+                // 高亮边框（可抽取且悬停）
+                if (isHovered && isExtractable) {
+                    ctx.strokeStyle = '#FFF';
+                    ctx.lineWidth = 3;
+                    ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+                    ctx.shadowBlur = 10;
+                    this.roundRect(ctx, -BLOCK_WIDTH/2, -BLOCK_HEIGHT/2, BLOCK_WIDTH, BLOCK_HEIGHT, 6);
+                    ctx.stroke();
+                }
+
+                // 边框
+                ctx.strokeStyle = this.adjustColor(block.gameData.color, -40);
+                ctx.lineWidth = 2;
+                this.roundRect(ctx, -BLOCK_WIDTH/2, -BLOCK_HEIGHT/2, BLOCK_WIDTH, BLOCK_HEIGHT, 6);
+                ctx.stroke();
+
+                // 纹理
+                this.drawTexture(ctx, 0, 0, BLOCK_WIDTH - 10, BLOCK_HEIGHT - 10, block.gameData.texture, block.gameData.color);
+
+                ctx.restore();
+            }
+
+            roundRect(ctx, x, y, width, height, radius) {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                ctx.lineTo(x + radius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+            }
+
+            gameLoop() {
+                // 更新物理引擎
+                Engine.update(this.engine, 1000 / 60);
+
+                // 渲染
+                this.render();
+
+                // 继续循环
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+
+        // 初始化游戏
+        const game = new BlockGame();
+
+        // 帮助弹窗
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const helpClose = document.getElementById('helpClose');
+
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.add('show');
+        });
+
+        helpClose.addEventListener('click', () => {
+            helpModal.classList.remove('show');
+        });
+
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.remove('show');
+            }
+        });
+
+        // 鼠标事件绑定
+        const canvas = document.getElementById('gameCanvas');
+        canvas.addEventListener('mousedown', (e) => game.handleMouseDown(e));
+        canvas.addEventListener('mousemove', (e) => game.handleMouseMove(e));
+        canvas.addEventListener('mouseup', (e) => game.handleMouseUp(e));
+        canvas.addEventListener('mouseleave', (e) => game.handleMouseUp(e));
+
+        // 触摸支持
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            game.handleMouseDown({ clientX: touch.clientX, clientY: touch.clientY });
+        });
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            game.handleMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
+        });
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            game.handleMouseUp({});
+        });
+    </script>
+</body>
+</html>
